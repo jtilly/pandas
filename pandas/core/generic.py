@@ -6560,12 +6560,22 @@ class NDFrame(PandasObject, SelectionMixin, indexing.IndexingMixin):
                             f"Expecting {len(to_replace)} got {len(value)} "
                         )
 
-                    new_data = self._data.replace_list(
-                        src_list=to_replace,
-                        dest_list=value,
-                        inplace=inplace,
-                        regex=regex,
-                    )
+                    if pd.api.types.is_categorical(self):
+                        new_data = self._data.copy()
+                        for src, dest in zip(to_replace, value):
+                            new_data = new_data.replace(
+                                to_replace=src,
+                                value=dest,
+                                inplace=inplace,
+                                regex=regex,
+                            )
+                    else:
+                        new_data = self._data.replace_list(
+                            src_list=to_replace,
+                            dest_list=value,
+                            inplace=inplace,
+                            regex=regex,
+                        )
 
                 else:  # [NA, ''] -> 0
                     new_data = self._data.replace(

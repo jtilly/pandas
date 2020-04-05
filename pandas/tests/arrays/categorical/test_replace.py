@@ -28,8 +28,6 @@ import pandas._testing as tm
     ],
 )
 def test_replace(to_replace, value, expected, flip_categories):
-    # GH 31720
-    stays_categorical = not isinstance(value, list)
 
     s = pd.Series([1, 2, 3], dtype="category")
     result = s.replace(to_replace, value)
@@ -38,10 +36,6 @@ def test_replace(to_replace, value, expected, flip_categories):
 
     if flip_categories:
         expected = expected.cat.set_categories(expected.cat.categories[::-1])
-
-    if not stays_categorical:
-        # the replace call loses categorical dtype
-        expected = pd.Series(np.asarray(expected))
 
     tm.assert_series_equal(
         expected, result, check_category_order=False,
